@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mastery: Đường Thẳng Vuông Góc Mặt Phẳng - Toán 11</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script>
+        window.MathJax = {
+            tex: { 
+                inlineMath: [['$', '$'], ['\\(', '\\)']], 
+                displayMath: [['$$', '$$']],
+                processEscapes: true
+            },
+            options: { enableMenu: false },
+            svg: { fontCache: 'global' }
+        };
+    </script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #f0fdfa; color: #0f172a; }
+        .math-render { opacity: 0; transition: opacity 0.5s ease; }
+        .math-render.ready { opacity: 1; }
+        .choice-btn:active { transform: scale(0.97); }
+        .explanation-box { 
+            border-left: 8px solid #0d9488; 
+            background-color: #f0fdfa;
+            box-shadow: 0 4px 15px rgba(13, 148, 136, 0.08);
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .btn-check { box-shadow: 0 10px 20px -5px rgba(13, 148, 136, 0.4); }
+        .item-row { transition: all 0.2s ease; }
+        .item-row:hover { background-color: #ffffff; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-2 md:p-6">
+    <div id="game-app" class="w-full max-w-5xl bg-white rounded-[2.5rem] shadow-[0_40px_80px_-20px_rgba(13,148,136,0.15)] border border-teal-50 flex flex-col">
+        
+        <!-- Header -->
+        <div class="bg-teal-600 p-8 text-white text-center relative overflow-hidden rounded-t-[2.5rem]">
+            <div class="absolute inset-0 bg-gradient-to-br from-teal-800 via-teal-600 to-cyan-500 opacity-95"></div>
+            <div class="relative z-10">
+                <h1 class="text-3xl font-extrabold tracking-tight text-white mb-2 italic uppercase">ĐƯỜNG THẲNG VUÔNG GÓC MẶT PHẲNG</h1>
+                <p class="text-teal-100 text-sm font-medium opacity-90 uppercase tracking-[0.3em]">Toán 11 KNTT - Cấu Trúc: 50% NB - 30% TH - 20% VD</p>
+            </div>
+        </div>
+
+        <!-- Progress bar -->
+        <div id="progress-container" class="hidden h-3 bg-slate-100 relative">
+            <div id="progress-bar" class="h-full bg-gradient-to-r from-teal-400 to-cyan-500 transition-all duration-700 w-0"></div>
+        </div>
+
+        <!-- Content Area -->
+        <div id="main-content" class="p-6 md:p-12 flex-grow min-h-[600px] flex flex-col overflow-y-auto">
+            <div id="start-screen" class="text-center py-16 my-auto">
+                <div class="text-[10rem] mb-8 leading-none">📐</div>
+                <h2 class="text-4xl font-black text-slate-800 mb-6 uppercase tracking-tighter">KIỂM TRA KIẾN THỨC</h2>
+                <p class="text-slate-500 mb-12 max-w-2xl mx-auto leading-relaxed text-xl">
+                    Hệ thống 50 câu hỏi chuẩn hóa: <b>Đã loại bỏ hoàn toàn các khái niệm về Góc và Hình chiếu</b>. Chỉ tập trung vào bản chất Vuông góc. <br>
+                    Lời giải chi tiết đã được tối ưu 100% chuẩn LaTeX. Thuật toán đảm bảo <b class="text-teal-600">không lặp quá 2 câu</b> với lượt đề liền trước đó.
+                </p>
+                <button onclick="initGame()" class="bg-teal-600 hover:bg-teal-700 text-white px-24 py-6 rounded-[2rem] font-black text-2xl shadow-xl transition-all active:scale-95 transform hover:-translate-y-1">BẮT ĐẦU NGAY</button>
+            </div>
+        </div>
+
+        <!-- Footer Control -->
+        <div id="footer-actions" class="hidden p-8 bg-slate-50 border-t border-slate-100 flex flex-col md:flex-row justify-between items-center gap-6 rounded-b-[2.5rem]">
+            <div id="status" class="text-lg font-black text-teal-600 uppercase tracking-[0.25em]">CÂU 1 / 15</div>
+            <div class="flex gap-4 w-full md:w-auto">
+                <button id="check-btn" onclick="processAnswer()" class="flex-1 md:flex-none bg-teal-600 hover:bg-teal-700 text-white px-16 py-4 rounded-2xl font-bold text-xl transition shadow-lg btn-check active:scale-95">Kiểm tra</button>
+                <button id="next-btn" onclick="renderNext()" class="hidden flex-1 md:flex-none bg-cyan-500 hover:bg-cyan-600 text-white px-16 py-4 rounded-2xl font-bold text-xl transition shadow-lg active:scale-95">Tiếp theo →</button>
+                <button id="result-btn" onclick="finishGame()" class="hidden flex-1 md:flex-none bg-orange-500 hover:bg-orange-600 text-white px-16 py-4 rounded-2xl font-bold text-xl transition shadow-lg active:scale-95">Kết quả</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const MASTER_POOL = {
+            part1: [
+                { id: "dtmp_nb_1", question: "Đường thẳng $d$ được gọi là vuông góc với mặt phẳng $(P)$ khi và chỉ khi:", options: ["$d$ vuông góc với hai đường thẳng cắt nhau nằm trong $(P)$", "$d$ vuông góc với một đường thẳng nằm trong $(P)$", "$d$ vuông góc với hai đường thẳng song song nằm trong $(P)$", "$d$ vuông góc với mọi đường thẳng nằm trong $(P)$"], correct: 3, explanation: "Theo ĐỊNH NGHĨA sách giáo khoa: Đường thẳng $d$ được gọi là vuông góc với mặt phẳng $(P)$ nếu nó vuông góc với MỌI đường thẳng nằm trong mặt phẳng $(P)$." },
+                { id: "dtmp_nb_2", question: "Điều kiện cần và đủ để đường thẳng $d$ vuông góc với mặt phẳng $(P)$ là:", options: ["$d$ vuông góc với hai đường thẳng bất kì nằm trong $(P)$", "$d$ vuông góc với hai đường thẳng cắt nhau cùng nằm trong $(P)$", "$d$ vuông góc với hai đường thẳng song song nằm trong $(P)$", "$d$ vuông góc với một đường thẳng nằm trong $(P)$"], correct: 1, explanation: "Theo ĐỊNH LÝ điều kiện để đường thẳng vuông góc với mặt phẳng: Nếu một đường thẳng vuông góc với hai đường thẳng CẮT NHAU cùng thuộc một mặt phẳng thì nó vuông góc với mặt phẳng ấy." },
+                { id: "dtmp_nb_3", question: "Mặt phẳng đi qua trung điểm của đoạn thẳng $AB$ và vuông góc với đoạn thẳng $AB$ được gọi là:", options: ["Đường trung trực của đoạn thẳng $AB$", "Mặt phẳng trung trực của đoạn thẳng $AB$", "Mặt phẳng đối xứng của đoạn thẳng $AB$", "Mặt phẳng trung tuyến của đoạn thẳng $AB$"], correct: 1, explanation: "Theo định nghĩa SGK: Mặt phẳng đi qua trung điểm của đoạn thẳng $AB$ và vuông góc với đường thẳng $AB$ là mặt phẳng trung trực của đoạn thẳng $AB$." },
+                { id: "dtmp_nb_4", question: "Trong không gian, cho điểm $O$ và đường thẳng $d$. Có bao nhiêu mặt phẳng đi qua $O$ và vuông góc với $d$?", options: ["Không có mặt phẳng nào", "Duy nhất một mặt phẳng", "Có đúng hai mặt phẳng", "Có vô số mặt phẳng"], correct: 1, explanation: "Tính chất 1 (SGK): Trong không gian, có duy nhất một mặt phẳng đi qua một điểm cho trước và vuông góc với một đường thẳng cho trước." },
+                { id: "dtmp_nb_5", question: "Trong không gian, cho điểm $O$ và mặt phẳng $(P)$. Có bao nhiêu đường thẳng đi qua $O$ và vuông góc với $(P)$?", options: ["Không có đường thẳng nào", "Duy nhất một đường thẳng", "Có đúng hai đường thẳng", "Có vô số đường thẳng"], correct: 1, explanation: "Tính chất 2 (SGK): Trong không gian, có duy nhất một đường thẳng đi qua một điểm cho trước và vuông góc với một mặt phẳng cho trước." },
+                { id: "dtmp_nb_6", question: "Cho hai đường thẳng song song $a$ và $b$. Nếu mặt phẳng $(P)$ vuông góc với đường thẳng $a$ thì mệnh đề nào sau đây ĐÚNG?", options: ["$(P)$ song song với $b$", "$(P)$ vuông góc với $b$", "$(P)$ chứa $b$", "$(P)$ cắt nhưng không vuông góc với $b$"], correct: 1, explanation: "Mối liên hệ giữa quan hệ song song và vuông góc: Cho hai đường thẳng song song. Mặt phẳng nào vuông góc với đường thẳng này thì cũng vuông góc với đường thẳng kia. Suy ra $(P) \\perp b$." },
+                { id: "dtmp_nb_7", question: "Cho hai mặt phẳng song song $(P)$ và $(Q)$. Nếu đường thẳng $d$ vuông góc với mặt phẳng $(P)$ thì mệnh đề nào sau đây ĐÚNG?", options: ["$d \\perp (Q)$", "$d \\parallel (Q)$", "$d \\subset (Q)$", "$d$ cắt nhưng không vuông góc với $(Q)$"], correct: 0, explanation: "Mối liên hệ giữa quan hệ song song và vuông góc: Cho hai mặt phẳng song song. Đường thẳng nào vuông góc với mặt phẳng này thì cũng vuông góc với mặt phẳng kia. Do đó $d \\perp (Q)$." },
+                { id: "dtmp_nb_8", question: "Hai mặt phẳng phân biệt cùng vuông góc với một đường thẳng thì hai mặt phẳng đó:", options: ["Vuông góc với nhau", "Cắt nhau", "Trùng nhau", "Song song với nhau"], correct: 3, explanation: "Tính chất SGK: Hai mặt phẳng phân biệt cùng vuông góc với một đường thẳng thì chúng song song với nhau." },
+                { id: "dtmp_nb_9", question: "Hai đường thẳng phân biệt cùng vuông góc với một mặt phẳng thì hai đường thẳng đó:", options: ["Vuông góc với nhau", "Chéo nhau", "Cắt nhau", "Song song với nhau"], correct: 3, explanation: "Tính chất SGK: Hai đường thẳng phân biệt cùng vuông góc với một mặt phẳng thì chúng song song với nhau." },
+                { id: "dtmp_nb_10", question: "Cho đường thẳng $d$ vuông góc với mặt phẳng $(P)$ và đường thẳng $a$ nằm trong mặt phẳng $(P)$ ($a \\subset (P)$). Khẳng định nào sau đây ĐÚNG?", options: ["$d \\parallel a$", "$d \\perp a$", "$d$ cắt $a$", "$d$ trùng $a$"], correct: 1, explanation: "Theo định nghĩa: Vì $d$ vuông góc với toàn bộ mặt phẳng $(P)$, nó sẽ tự động vuông góc với MỌI đường thẳng nằm trong $(P)$, kể cả đường thẳng $a$. Vậy $d \\perp a$." },
+                { id: "dtmp_nb_11", question: "Cho hình chóp $S.ABCD$ có đáy $ABCD$ là hình vuông và cạnh bên $SA$ vuông góc với mặt phẳng đáy $(ABCD)$. Mệnh đề nào sau đây ĐÚNG?", options: ["$SA \\perp BD$", "$SC \\perp BD$", "$SB \\perp AD$", "$SD \\perp AB$"], correct: 0, explanation: "Vì $SA \\perp (ABCD)$ nên $SA$ sẽ vuông góc với mọi đường thẳng nằm trong mặt phẳng đáy $(ABCD)$. Do đường chéo $BD \\subset (ABCD)$ nên ta có ngay $SA \\perp BD$." },
+                { id: "dtmp_nb_12", question: "Cho hình lập phương $ABCD.A'B'C'D'$. Đường thẳng nào sau đây vuông góc với mặt phẳng $(ABCD)$?", options: ["$A'B$", "$A'C'$", "$BD$", "$AA'$"], correct: 3, explanation: "Theo định nghĩa và tính chất của hình lập phương, các cạnh bên luôn vuông góc với mặt phẳng đáy. Do đó, cạnh $AA'$ (và các cạnh $BB', CC', DD'$) vuông góc với mặt phẳng $(ABCD)$." },
+                { id: "dtmp_nb_13", question: "Cho hình chóp đều $S.ABCD$, gọi $O$ là tâm của mặt đáy (giao điểm hai đường chéo). Khẳng định nào sau đây là ĐÚNG?", options: ["$SA \\perp (ABCD)$", "$SO \\perp (ABCD)$", "$AC \\perp (SBD)$", "$AB \\perp (SAD)$"], correct: 1, explanation: "Tính chất cơ bản của hình chóp đa giác đều: Trục của đa giác đáy đi qua đỉnh $S$. Do đó, đoạn thẳng nối từ đỉnh $S$ đến tâm $O$ của đáy chính là đường cao của hình chóp, suy ra $SO \\perp (ABCD)$." },
+                { id: "dtmp_nb_14", question: "Cho tứ diện $OABC$ có ba cạnh $OA, OB, OC$ đôi một vuông góc với nhau tại $O$. Khẳng định nào sau đây ĐÚNG?", options: ["$OA \\perp (OBC)$", "$AB \\perp (OBC)$", "$AC \\perp (OAB)$", "$BC \\perp (OAB)$"], correct: 0, explanation: "Vì $OA \\perp OB$ và $OA \\perp OC$, mà $OB$ và $OC$ là hai đường thẳng cắt nhau tại $O$ nằm trong mặt phẳng $(OBC)$. Theo điều kiện để đường thẳng vuông góc mặt phẳng, ta suy ra $OA \\perp (OBC)$." },
+                { id: "dtmp_nb_15", question: "Trong không gian, đường thẳng $\\Delta$ được gọi là trục của đường tròn ngoại tiếp tam giác $ABC$ nếu $\\Delta$ đi qua tâm đường tròn ngoại tiếp và:", options: ["Nằm trong mặt phẳng $(ABC)$", "Song song với mặt phẳng $(ABC)$", "Chéo với các cạnh của tam giác $ABC$", "Vuông góc với mặt phẳng $(ABC)$"], correct: 3, explanation: "Định nghĩa: Trục của đường tròn ngoại tiếp một đa giác là đường thẳng đi qua tâm đường tròn ngoại tiếp đa giác đó và vuông góc với mặt phẳng chứa đa giác." },
+                { id: "dtmp_nb_16", question: "Hình lăng trụ đứng là hình lăng trụ có tính chất nào sau đây?", options: ["Các mặt bên là hình vuông", "Các cạnh bên vuông góc với mặt phẳng đáy", "Đáy luôn là tam giác đều", "Đáy luôn là hình vuông"], correct: 1, explanation: "Theo định nghĩa SGK, hình lăng trụ đứng là hình lăng trụ có các cạnh bên vuông góc với các mặt phẳng đáy. Các mặt bên của nó là các hình chữ nhật." },
+                { id: "dtmp_nb_17", question: "Trong hình hộp chữ nhật $ABCD.A'B'C'D'$, đường thẳng $DD'$ vuông góc với mặt phẳng nào sau đây?", options: ["$(ABB'A')$", "$(ABCD)$", "$(BDD'B')$", "$(ACC'A')$"], correct: 1, explanation: "Hình hộp chữ nhật là một lăng trụ đứng. Do đó, 4 cạnh bên $AA', BB', CC', DD'$ luôn vuông góc với 2 mặt phẳng đáy là $(ABCD)$ và $(A'B'C'D')$." },
+                { id: "dtmp_nb_18", question: "Cho hình chóp $S.ABC$ có $SA \\perp (ABC)$. Mệnh đề nào sau đây SAI?", options: ["$SA \\perp AB$", "$SA \\perp BC$", "$SB \\perp BC$", "$SA \\perp AC$"], correct: 2, explanation: "Vì $SA \\perp (ABC)$ nên $SA$ vuông góc với mọi đường thẳng trong đáy, bao gồm $AB, BC, AC$. Mệnh đề $SB \\perp BC$ nói chung là sai (nó chỉ đúng khi đáy $\\Delta ABC$ là tam giác vuông tại $B$)." },
+                { id: "dtmp_nb_19", question: "Hệ quả của điều kiện vuông góc: Nếu một đường thẳng vuông góc với hai cạnh của một tam giác thì nó sẽ:", options: ["Song song với cạnh thứ ba", "Vuông góc với cạnh thứ ba", "Cắt cạnh thứ ba", "Chéo với cạnh thứ ba"], correct: 1, explanation: "Theo hệ quả ĐK vuông góc: Nếu một đường thẳng vuông góc với hai cạnh của một tam giác (tức là vuông góc với hai đường thẳng cắt nhau), thì nó sẽ vuông góc với mặt phẳng chứa tam giác đó, dẫn đến việc nó vuông góc với cạnh thứ ba nằm trong mặt phẳng." },
+                { id: "dtmp_nb_20", question: "Nếu đường thẳng $d$ vuông góc với mặt phẳng $(\\alpha)$ thì $d$ vuông góc với bao nhiêu đường thẳng nằm trong mặt phẳng $(\\alpha)$?", options: ["Vô số đường thẳng", "1 đường thẳng", "2 đường thẳng", "3 đường thẳng"], correct: 0, explanation: "Theo định nghĩa $d \\perp (\\alpha) \\Leftrightarrow d \\perp a, \\forall a \\subset (\\alpha)$. Tức là $d$ vuông góc với TẤT CẢ (vô số) các đường thẳng nằm trong mặt phẳng đó." },
+                { id: "dtmp_th_21", question: "Cho hình chóp $S.ABCD$ có đáy $ABCD$ là hình chữ nhật và $SA \\perp (ABCD)$. Khẳng định nào sau đây ĐÚNG?", options: ["$BC \\perp (SAB)$", "$BC \\perp (SAC)$", "$BC \\perp (SAD)$", "$BC \\perp (SCD)$"], correct: 0, explanation: "Ta có $BC \\perp AB$ (do đáy là hình chữ nhật). <br>Mặt khác $BC \\perp SA$ (do giả thiết $SA \\perp (ABCD)$). <br>Hai đường thẳng $AB$ và $SA$ cắt nhau tại $A$ và cùng nằm trong mặt phẳng $(SAB)$. Suy ra $BC \\perp (SAB)$." },
+                { id: "dtmp_th_22", question: "Cho hình chóp $S.ABC$ có $SA \\perp (ABC)$, đáy là tam giác $ABC$ vuông tại $B$. Khẳng định nào sau đây chứng minh tam giác $SBC$ là tam giác vuông?", options: ["$SC \\perp (SAB)$", "$BC \\perp (SAB)$", "$SB \\perp (SAC)$", "$AB \\perp (SBC)$"], correct: 1, explanation: "Chứng minh: Ta có $BC \\perp AB$ (do đáy vuông tại B) và $BC \\perp SA$ (vì $SA \\perp (ABC)$). <br>Từ đó suy ra $BC \\perp (SAB)$. Vì $SB \\subset (SAB)$ nên $BC \\perp SB$. <br>Vậy tam giác $SBC$ vuông tại $B$." },
+                { id: "dtmp_th_23", question: "Cho hình chóp đều $S.ABCD$ có tâm đáy là $O$. Mệnh đề nào sau đây ĐÚNG?", options: ["$AC \\perp (SBD)$", "$BD \\perp (SAB)$", "$AB \\perp (SCD)$", "$SA \\perp (ABCD)$"], correct: 0, explanation: "Hình chóp đều có đáy là hình vuông, suy ra hai đường chéo $AC \\perp BD$. <br>Hình chóp đều có đường cao là $SO \\Rightarrow SO \\perp (ABCD) \\Rightarrow AC \\perp SO$. <br>Đường thẳng $AC$ vuông góc với $BD$ và $SO$ (cùng nằm trong $(SBD)$) nên $AC \\perp (SBD)$." },
+                { id: "dtmp_th_24", question: "Cho hình chóp $S.ABCD$ có đáy $ABCD$ là hình thoi tâm $O$, $SA = SC$ và $SB = SD$. Đường thẳng nào sau đây vuông góc với mặt phẳng $(ABCD)$?", options: ["$SA$", "$SB$", "$SO$", "$AC$"], correct: 2, explanation: "Do $SA = SC$ nên tam giác $SAC$ là tam giác cân tại $S$. $SO$ là đường trung tuyến nên $SO \\perp AC$. <br>Tương tự, $SB = SD$ nên $\\Delta SBD$ cân tại $S \\Rightarrow SO \\perp BD$. <br>Đường thẳng $SO$ vuông góc với 2 đường chéo cắt nhau của đáy nên $SO \\perp (ABCD)$." },
+                { id: "dtmp_th_25", question: "Cho hình chóp $S.ABCD$ có đáy $ABCD$ là hình vuông tâm $O$, $SA \\perp (ABCD)$. Mệnh đề nào sau đây ĐÚNG?", options: ["$BD \\perp (SAC)$", "$AC \\perp (SBD)$", "$BC \\perp (SAC)$", "$CD \\perp (SAB)$"], correct: 0, explanation: "Đáy là hình vuông nên 2 đường chéo vuông góc: $BD \\perp AC$. <br>Theo giả thiết $SA \\perp (ABCD) \\Rightarrow BD \\perp SA$. <br>Đường thẳng $BD$ vuông góc với 2 đường thẳng cắt nhau $AC, SA$ thuộc mặt phẳng $(SAC)$, suy ra $BD \\perp (SAC)$." },
+                { id: "dtmp_th_26", question: "Cho hình chóp $S.ABCD$ có đáy là hình vuông, $SA \\perp (ABCD)$. Mệnh đề nào sau đây ĐÚNG?", options: ["$CD \\perp (SAD)$", "$CD \\perp (SAB)$", "$BC \\perp (SAC)$", "$AC \\perp (SCD)$"], correct: 0, explanation: "Ta có $CD \\perp AD$ (do đáy là hình vuông). <br>Lại có $SA \\perp (ABCD) \\Rightarrow CD \\perp SA$. <br>Vì $CD$ vuông góc với cả $AD$ và $SA$ (hai đường nằm trong mặt phẳng $(SAD)$) nên $CD \\perp (SAD)$." },
+                { id: "dtmp_th_27", question: "Cho hình lập phương $ABCD.A'B'C'D'$. Đường chéo đáy $BD$ vuông góc với mặt phẳng nào dưới đây?", options: ["$(ABCD)$", "$(ACC'A')$", "$(ABB'A')$", "$(BCC'B')$"], correct: 1, explanation: "Đáy là hình vuông nên $BD \\perp AC$. <br>Các cạnh bên của lập phương vuông góc đáy nên $AA' \\perp (ABCD) \\Rightarrow AA' \\perp BD$. <br>Từ đó $BD \\perp AC$ và $BD \\perp AA'$, suy ra $BD \\perp (ACC'A')$." },
+                { id: "dtmp_th_28", question: "Cho lăng trụ đứng $ABC.A'B'C'$ có đáy là tam giác vuông tại $A$. Mệnh đề nào sau đây ĐÚNG?", options: ["$AB \\perp (A'B'C')$", "$AC \\perp (ABB'A')$", "$BC \\perp (ACC'A')$", "$A'B' \\perp (BCC'B')$"], correct: 1, explanation: "Lăng trụ đứng có cạnh bên $AA' \\perp (ABC) \\Rightarrow AA' \\perp AC$. <br>Đáy vuông tại $A$ nên $AB \\perp AC$. <br>Đường thẳng $AC$ vuông góc với $AA'$ và $AB$ (2 đường cắt nhau trong mp $(ABB'A')$). Vậy $AC \\perp (ABB'A')$." },
+                { id: "dtmp_th_29", question: "Cho tam giác $ABC$ đều. Đường thẳng $\\Delta$ là trục của tam giác $ABC$. Lấy điểm $M$ bất kỳ nằm trên $\\Delta$. Khẳng định nào sau đây ĐÚNG?", options: ["$MA = MB = MC$", "$MA \\perp MB$", "$MB \\perp MC$", "Tam giác $MAB$ là tam giác đều"], correct: 0, explanation: "Trục của tam giác là đường thẳng đi qua tâm đường tròn ngoại tiếp (cách đều 3 đỉnh $A, B, C$) và vuông góc với mặt phẳng chứa tam giác. <br>Bất kỳ điểm $M$ nào nằm trên trục của tam giác đều cách đều 3 đỉnh của tam giác đó, suy ra $MA = MB = MC$." },
+                { id: "dtmp_th_30", question: "Cho hình chóp $S.ABCD$ có đáy $ABCD$ là hình chữ nhật, $SA \\perp (ABCD)$. Kẻ đường cao $AH$ của tam giác $SAB$ ($AH \\perp SB$). Khẳng định nào ĐÚNG?", options: ["$AH \\perp (SBD)$", "$AH \\perp (SBC)$", "$AH \\perp (SCD)$", "$AH \\perp (ABCD)$"], correct: 1, explanation: "Ta đã chứng minh được $BC \\perp (SAB)$ (do $BC \\perp AB$ và $BC \\perp SA$). Suy ra $BC \\perp AH$. <br>Lại có $AH \\perp SB$ (do cách dựng). <br>Đường thẳng $AH$ vuông góc với $BC$ và $SB$, hai đường này cắt nhau trong mặt phẳng $(SBC)$. Do đó $AH \\perp (SBC)$." }
+            ],
+            part2: [
+                { id: "dtmp_p2_1", question: "Cho hình chóp $S.ABCD$ có đáy $ABCD$ là hình vuông. Cạnh bên $SA$ vuông góc với mặt phẳng đáy $(ABCD)$. Xét các tính chất vuông góc sau:", items: [
+                    { text: "Đường thẳng $BC$ vuông góc với mặt phẳng $(SAB)$.", isTrue: true },
+                    { text: "Đường thẳng $BD$ vuông góc với mặt phẳng $(SAC)$.", isTrue: true },
+                    { text: "Tam giác $SCD$ là một tam giác vuông tại đỉnh $D$.", isTrue: true },
+                    { text: "Đường thẳng $SC$ vuông góc với mặt phẳng $(ABCD)$.", isTrue: false }
+                ], explanation: "<b>Giải thích chi tiết:</b><br>a) Đúng. $BC \\perp AB$ (vì đáy là hình vuông) và $BC \\perp SA$ (vì $SA \\perp (ABCD)$). Suy ra $BC \\perp (SAB)$.<br>b) Đúng. $BD \\perp AC$ (hình vuông) và $BD \\perp SA$ (vì $SA \\perp (ABCD)$). Suy ra $BD \\perp (SAC)$.<br>c) Đúng. Tương tự ý a, ta chứng minh được $CD \\perp (SAD) \\Rightarrow CD \\perp SD$. Vậy $\\Delta SCD$ có góc vuông tại $D$.<br>d) Sai. Đường thẳng vuông góc với mặt đáy là $SA$. $SC$ là đường xiên cắt đáy tại $C$, nên không thể vuông góc với đáy." },
+                { id: "dtmp_p2_2", question: "Về lý thuyết quan hệ vuông góc giữa đường thẳng và mặt phẳng trong không gian:", items: [
+                    { text: "Hai đường thẳng phân biệt cùng vuông góc với một mặt phẳng thì luôn song song với nhau.", isTrue: true },
+                    { text: "Hai mặt phẳng phân biệt cùng vuông góc với một đường thẳng thì luôn song song với nhau.", isTrue: true },
+                    { text: "Một đường thẳng vuông góc với hai đường thẳng bất kì nằm trong một mặt phẳng thì vuông góc với mặt phẳng đó.", isTrue: false },
+                    { text: "Có vô số mặt phẳng đi qua một điểm cho trước và vuông góc với một đường thẳng cho trước.", isTrue: false }
+                ], explanation: "<b>Giải thích chi tiết:</b><br>a) Đúng. Đây là tính chất SGK, liên hệ giữa song song và vuông góc.<br>b) Đúng. Tính chất SGK về hai mặt phẳng song song.<br>c) Sai. Đường thẳng đó phải vuông góc với hai đường thẳng <b>cắt nhau</b> nằm trong mặt phẳng thì mới đủ điều kiện kết luận vuông góc với mặt phẳng.<br>d) Sai. Theo tiên đề hình học không gian, chỉ có <b>duy nhất</b> một mặt phẳng đi qua một điểm và vuông góc với một đường thẳng." },
+                { id: "dtmp_p2_3", question: "Cho hình lập phương $ABCD.A'B'C'D'$. Xét tính đúng/sai của các quan hệ sau:", items: [
+                    { text: "Cạnh bên $AA'$ vuông góc với toàn bộ mặt phẳng đáy $(ABCD)$.", isTrue: true },
+                    { text: "Cạnh đáy $AB$ vuông góc với mặt phẳng bên $(BCC'B')$.", isTrue: true },
+                    { text: "Đường chéo đáy $BD$ vuông góc với mặt phẳng chéo $(ACC'A')$.", isTrue: true },
+                    { text: "Đường chéo $A'C$ vuông góc với mặt phẳng $(ABCD)$.", isTrue: false }
+                ], explanation: "<b>Giải thích chi tiết:</b><br>a) Đúng. Tính chất cơ bản của hình lập phương (lăng trụ đứng) là các cạnh bên luôn vuông góc với mặt đáy.<br>b) Đúng. $AB \\perp BC$ (đáy là hình vuông) và $AB \\perp BB'$ (cạnh bên vuông góc đáy). Hai đường thẳng $BC, BB'$ cắt nhau trong $(BCC'B')$ nên $AB \\perp (BCC'B')$.<br>c) Đúng. $BD \\perp AC$ (đáy là hình vuông) và $BD \\perp AA'$ (do $AA' \\perp (ABCD)$). Hai đường thẳng $AC$ và $AA'$ cắt nhau trong $(ACC'A')$, suy ra $BD \\perp (ACC'A')$.<br>d) Sai. Đường chéo $A'C$ là một đường xiên đâm xuyên qua khối lập phương. Đường thẳng vuông góc với đáy tại $A'$ phải là cạnh $A'A$." },
+                { id: "dtmp_p2_4", question: "Cho tứ diện $OABC$ có ba cạnh $OA, OB, OC$ đôi một vuông góc với nhau tại đỉnh $O$.", items: [
+                    { text: "Cạnh $OA$ vuông góc với mặt phẳng chứa tam giác $(OBC)$.", isTrue: true },
+                    { text: "Tam giác $ABC$ là một tam giác vuông.", isTrue: false },
+                    { text: "Cạnh $OB$ vuông góc với mặt phẳng $(OAC)$.", isTrue: true },
+                    { text: "Đường thẳng $BC$ vuông góc với mặt phẳng $(OAB)$.", isTrue: false }
+                ], explanation: "<b>Giải thích chi tiết:</b><br>a) Đúng. Vì $OA \\perp OB$ và $OA \\perp OC$ nên theo định lý, $OA \\perp (OBC)$.<br>b) Sai. Ta có $AB^2 = OA^2+OB^2$, $BC^2 = OB^2+OC^2$, $CA^2 = OC^2+OA^2$. Nhận thấy $AB^2 + BC^2 = OA^2 + 2OB^2 + OC^2 &gt; OA^2+OC^2 = CA^2$. Bằng tính chất đối xứng, tổng bình phương 2 cạnh bất kỳ luôn lớn hơn bình phương cạnh còn lại nên $\\Delta ABC$ luôn là tam giác nhọn, không bao giờ là tam giác vuông.<br>c) Đúng. Tương tự ý a, $OB \\perp OA$ và $OB \\perp OC \\Rightarrow OB \\perp (OAC)$.<br>d) Sai. Cạnh $BC$ nằm trong mặt phẳng $(OBC)$ nhưng nó không tạo góc vuông với $OA$ hay $OB$, do đó $BC$ không thể vuông góc với toàn bộ mặt phẳng $(OAB)$." },
+                { id: "dtmp_p2_5", question: "Về mặt phẳng trung trực của đoạn thẳng $AB$ trong không gian, xét các tính chất sau:", items: [
+                    { text: "Mặt phẳng trung trực luôn đi qua trung điểm của đoạn thẳng $AB$.", isTrue: true },
+                    { text: "Mặt phẳng trung trực vuông góc với đường thẳng $AB$.", isTrue: true },
+                    { text: "Mặt phẳng trung trực chứa đường thẳng $AB$.", isTrue: false },
+                    { text: "Tập hợp tất cả các điểm cách đều hai điểm $A$ và $B$ chính là mặt phẳng trung trực của $AB$.", isTrue: true }
+                ], explanation: "<b>Giải thích chi tiết:</b><br>a) Đúng. Đây là tính chất theo đúng định nghĩa.<br>b) Đúng. Mặt phẳng trung trực phải vuông góc với đoạn thẳng đó.<br>c) Sai. Nếu mặt phẳng vuông góc với đường thẳng $AB$ thì nó không thể chứa đường thẳng $AB$ được (chỉ cắt tại đúng 1 điểm là trung điểm).<br>d) Đúng. Đây là tính chất quỹ tích kinh điển trong hình học không gian." },
+                { id: "dtmp_p2_6", question: "Cho hình chóp $S.ABCD$ có đáy $ABCD$ là hình vuông. Cạnh bên $SA$ vuông góc với mặt phẳng đáy $(ABCD)$. Kẻ $AH \\perp SB$ và $AK \\perp SD$.", items: [
+                    { text: "Đường thẳng $BC$ vuông góc với mặt phẳng $(SAB)$.", isTrue: true },
+                    { text: "Đường thẳng $CD$ vuông góc với mặt phẳng $(SAD)$.", isTrue: true },
+                    { text: "Đường thẳng $AH$ vuông góc với mặt phẳng $(SBC)$.", isTrue: true },
+                    { text: "Đường thẳng $AK$ vuông góc với mặt phẳng $(SCD)$.", isTrue: true }
+                ], explanation: "<b>Giải thích chi tiết:</b><br>a) Đúng. $BC \\perp AB$ (vì đáy là hình vuông) và $BC \\perp SA$ (vì $SA \\perp$ đáy). Suy ra $BC \\perp (SAB)$.<br>b) Đúng. Tương tự, $CD \\perp AD$ và $CD \\perp SA \\Rightarrow CD \\perp (SAD)$.<br>c) Đúng. Từ ý a ta có $BC \\perp (SAB) \\Rightarrow BC \\perp AH$. Lại có $AH \\perp SB$ (do cách kẻ). Suy ra $AH \\perp (SBC)$.<br>d) Đúng. Từ ý b ta có $CD \\perp (SAD) \\Rightarrow CD \\perp AK$. Lại có $AK \\perp SD$ (do cách kẻ). Suy ra $AK \\perp (SCD)$." },
+                { id: "dtmp_p2_7", question: "Cho hình lập phương $ABCD.A'B'C'D'$. Xét tính đúng/sai của các quan hệ sau:", items: [
+                    { text: "Đường chéo đáy $BD$ vuông góc với đường chéo đáy $AC$.", isTrue: true },
+                    { text: "Đường chéo đáy $BD$ vuông góc với cạnh bên $AA'$.", isTrue: true },
+                    { text: "Đường chéo đáy $BD$ vuông góc với mặt phẳng chéo $(ACC'A')$.", isTrue: true },
+                    { text: "Đường chéo $A'C$ vuông góc với mặt phẳng $(ABCD)$.", isTrue: false }
+                ], explanation: "<b>Giải thích chi tiết:</b><br>a) Đúng. Mặt đáy của hình lập phương là hình vuông, hai đường chéo luôn vuông góc với nhau.<br>b) Đúng. Cạnh bên $AA'$ vuông góc với mặt đáy $(ABCD)$, do đó nó vuông góc với mọi đường thẳng nằm trong mặt đáy, bao gồm $BD$.<br>c) Đúng. Từ ý a và b, $BD \\perp AC$ và $BD \\perp AA'$. Hai đường thẳng này cắt nhau trong mặt phẳng $(ACC'A')$, suy ra $BD \\perp (ACC'A')$.<br>d) Sai. Đường chéo $A'C$ là một đường xiên đâm xuyên qua khối lập phương. Đường thẳng vuông góc với đáy tại $A'$ phải là cạnh $A'A$." },
+                { id: "dtmp_p2_8", question: "Cho hình chóp $S.ABCD$ có đáy $ABCD$ là hình thoi tâm $O$. Biết các cạnh bên bằng nhau $SA=SC$ và $SB=SD$.", items: [
+                    { text: "Tam giác $SAC$ là tam giác cân tại đỉnh $S$.", isTrue: true },
+                    { text: "Đường thẳng $SO$ vuông góc với đường chéo $AC$.", isTrue: true },
+                    { text: "Đường thẳng $SO$ chính là đường cao của hình chóp, vuông góc với mặt phẳng $(ABCD)$.", isTrue: true },
+                    { text: "Đường chéo $AC$ vuông góc với toàn bộ mặt phẳng $(SBD)$.", isTrue: true }
+                ], explanation: "<b>Giải thích chi tiết:</b><br>a) Đúng. Giả thiết cho rõ ràng $SA=SC$, thỏa mãn định nghĩa tam giác cân.<br>b) Đúng. Trong $\\Delta SAC$ cân tại S, trung tuyến $SO$ cũng đồng thời là đường cao $\\Rightarrow SO \\perp AC$.<br>c) Đúng. Tương tự, $\\Delta SBD$ cân tại S (do $SB=SD$) $\\Rightarrow SO \\perp BD$. Vì $SO \\perp AC$ và $SO \\perp BD$, mà $AC, BD$ là hai đường thẳng cắt nhau nằm trong mặt đáy $\\Rightarrow SO \\perp (ABCD)$.<br>d) Đúng. Ta có $AC \\perp BD$ (tính chất hai đường chéo hình thoi) và $AC \\perp SO$ (vừa chứng minh ở trên). Suy ra $AC \\perp (SBD)$." },
+                { id: "dtmp_p2_9", question: "Cho hình lăng trụ đứng $ABC.A'B'C'$ có đáy là tam giác vuông tại $A$.", items: [
+                    { text: "Cạnh bên $AA'$ vuông góc với mặt phẳng đáy $(ABC)$.", isTrue: true },
+                    { text: "Đường thẳng $AB$ vuông góc với đường thẳng $AC$.", isTrue: true },
+                    { text: "Đường thẳng $AC$ vuông góc với mặt phẳng $(ABB'A')$.", isTrue: true },
+                    { text: "Đường thẳng $BC$ vuông góc với mặt phẳng $(ACC'A')$.", isTrue: false }
+                ], explanation: "<b>Giải thích chi tiết:</b><br>a) Đúng. Định nghĩa lăng trụ đứng là lăng trụ có các cạnh bên vuông góc với mặt đáy.<br>b) Đúng. Đáy $ABC$ là tam giác vuông tại $A$, nên hai cạnh góc vuông $AB \\perp AC$.<br>c) Đúng. Ta có $AC \\perp AB$ (đáy vuông) và $AC \\perp AA'$ (do $AA' \\perp (ABC)$). Suy ra $AC \\perp (ABB'A')$.<br>d) Sai. $BC$ không vuông góc với $AC$ (chúng tạo thành góc nhọn trong tam giác vuông $ABC$), do đó $BC$ không thể vuông góc với mặt phẳng $(ACC'A')$." },
+                { id: "dtmp_p2_10", question: "Bài toán tham khảo SGK: Cho hình chóp $S.ABCD$ đáy là hình vuông. Gọi $H, K$ lần lượt là trung điểm của $AB$ và $AD$. Biết $SH \\perp (ABCD)$.", items: [
+                    { text: "Tam giác $BCH$ bằng tam giác $ABK$.", isTrue: true },
+                    { text: "Đường thẳng $BK$ vuông góc với đường thẳng $CH$.", isTrue: true },
+                    { text: "Đường thẳng $SH$ vuông góc với đường thẳng $BK$.", isTrue: true },
+                    { text: "Đường thẳng $BK$ vuông góc với toàn bộ mặt phẳng $(SCH)$.", isTrue: true }
+                ], explanation: "<b>Giải thích chi tiết:</b><br>a) Đúng. Xét $\\Delta BCH$ và $\\Delta ABK$ có: $\\angle CBH = \\angle BAK = 90^\\circ$; $BC = AB$; $BH = AK = \\frac{a}{2}$. Suy ra $\\Delta BCH = \\Delta ABK$ (c-g-c).<br>b) Đúng. Từ ý a, ta có $\\angle B_1 = \\angle C_1$. Lại có $\\angle B_1 + \\angle B_2 = 90^\\circ \\Rightarrow \\angle C_1 + \\angle B_2 = 90^\\circ \\Rightarrow BK \\perp CH$.<br>c) Đúng. Vì $SH \\perp (ABCD)$ nên $SH$ vuông góc với mọi đường thẳng dưới đáy, bao gồm $BK$.<br>d) Đúng. Ta có $BK \\perp CH$ và $BK \\perp SH$. Suy ra $BK \\perp (SCH)$." }
+            ],
+            part3: [
+                { id: "dtmp_p3_1_new", question: "Cho hình chóp $S.ABC$ có $SA \\perp (ABC)$, tam giác đáy $ABC$ vuông tại $B$. Biết $SA = 3, AB = 4, BC = 12$. Tính độ dài cạnh $SC$.", keywords: ["13"], explanation: "Vì $SA \\perp (ABC)$ nên nó vuông góc với mọi đường trong đáy, suy ra $SA \\perp AC$. Tam giác $SAC$ vuông tại $A$. <br>Đầu tiên, áp dụng Pytago cho $\\Delta ABC$ vuông tại $B$: $AC = \\sqrt{AB^2 + BC^2} = \\sqrt{4^2 + 12^2} = \\sqrt{16 + 144} = \\sqrt{160}$. <br>Tiếp theo, xét $\\Delta SAC$ vuông tại $A$: $SC = \\sqrt{SA^2 + AC^2} = \\sqrt{3^2 + (\\sqrt{160})^2} = \\sqrt{9 + 160} = \\sqrt{169} = 13$." },
+                { id: "dtmp_p3_2", question: "Một khối hình hộp chữ nhật có tất cả bao nhiêu mặt?", keywords: ["6"], explanation: "Kiến thức nhận biết cơ bản: Hình hộp chữ nhật là một khối đa diện có 2 mặt đáy (trên và dưới) cùng 4 mặt bên xung quanh. Tổng cộng có 6 mặt (và tất cả đều là các hình chữ nhật)." },
+                { id: "dtmp_p3_3_new", question: "Cho hình hộp chữ nhật $ABCD.A'B'C'D'$ có các kích thước cơ bản $AB=3, AD=4, AA'=12$. Tính độ dài đường chéo $AC'$ của hình hộp chữ nhật này.", keywords: ["13"], explanation: "Trong hình hộp chữ nhật, độ dài đường chéo lớn được tính bằng công thức mở rộng của định lý Pytago trong không gian 3 chiều: <br>$AC' = \\sqrt{AB^2 + AD^2 + AA'^2} = \\sqrt{3^2 + 4^2 + 12^2} = \\sqrt{9 + 16 + 144} = \\sqrt{169} = 13$." },
+                { id: "dtmp_p3_4_new", question: "Cho hình chóp $S.ABCD$ có đáy $ABCD$ là hình vuông cạnh bằng $3\\sqrt{2}$. Cạnh bên $SA$ vuông góc với mặt phẳng đáy và có độ dài $SA = 8$. Tính độ dài đoạn thẳng $SC$.", keywords: ["10"], explanation: "Đáy $ABCD$ là hình vuông có cạnh $3\\sqrt{2}$, nên đường chéo $AC = AB\\sqrt{2} = 3\\sqrt{2} \\cdot \\sqrt{2} = 6$. <br>Vì $SA \\perp (ABCD)$ nên $SA \\perp AC \\Rightarrow \\Delta SAC$ vuông tại đỉnh $A$. <br>Áp dụng định lý Pytago: $SC = \\sqrt{SA^2 + AC^2} = \\sqrt{8^2 + 6^2} = \\sqrt{64 + 36} = \\sqrt{100} = 10$." },
+                { id: "dtmp_p3_5_new", question: "Cho hình chóp tam giác đều $S.ABC$ có độ dài cạnh đáy $AB = 3\\sqrt{3}$. Gọi $G$ là trọng tâm tam giác đáy $ABC$, biết đường cao của hình chóp là $SG = 4$. Tính độ dài cạnh bên $SA$.", keywords: ["5"], explanation: "Trong tam giác đều $ABC$ cạnh $3\\sqrt{3}$, đường cao tương ứng là $AM = \\frac{AB\\sqrt{3}}{2} = \\frac{3\\sqrt{3} \\cdot \\sqrt{3}}{2} = 4.5$. <br>Theo tính chất trọng tâm, khoảng cách từ đỉnh $A$ đến $G$ là $AG = \\frac{2}{3} AM = \\frac{2}{3} \\cdot 4.5 = 3$. <br>Vì $SG \\perp (ABC) \\Rightarrow SG \\perp AG \\Rightarrow \\Delta SGA$ vuông tại $G$. <br>Độ dài cạnh bên $SA = \\sqrt{SG^2 + AG^2} = \\sqrt{4^2 + 3^2} = \\sqrt{16 + 9} = 5$." },
+                { id: "dtmp_p3_6_new", question: "Cho hình chóp $S.ABCD$ có đáy $ABCD$ là hình chữ nhật. Cạnh bên $SA$ vuông góc với mặt phẳng đáy. Hỏi hình chóp này có tất cả bao nhiêu mặt bên là tam giác vuông?", keywords: ["4"], explanation: "Hình chóp có 4 mặt bên, ta lần lượt xét: <br>- $\\Delta SAB$ vuông tại $A$ (do $SA \\perp AB$). <br>- $\\Delta SAD$ vuông tại $A$ (do $SA \\perp AD$). <br>- $\\Delta SBC$ vuông tại $B$ (chứng minh $BC \\perp AB$ và $BC \\perp SA \\Rightarrow BC \\perp (SAB) \\Rightarrow BC \\perp SB$). <br>- $\\Delta SDC$ vuông tại $D$ (chứng minh tương tự $CD \\perp (SAD) \\Rightarrow CD \\perp SD$). <br>Vậy cả $4$ mặt bên đều là các tam giác vuông." },
+                { id: "dtmp_p3_7_new", question: "Cho hình chóp $S.ABC$ có cạnh bên $SA$ vuông góc với mặt phẳng đáy $(ABC)$ và $SA=4$. Tam giác $ABC$ là tam giác đều cạnh $2\\sqrt{3}$. Gọi $M$ là trung điểm của cạnh $BC$. Tính độ dài đoạn thẳng $SM$.", keywords: ["5"], explanation: "Trong tam giác đều $ABC$ cạnh $2\\sqrt{3}$, đường trung tuyến (cũng là đường cao) là $AM = \\frac{2\\sqrt{3} \\cdot \\sqrt{3}}{2} = 3$. <br>Do $SA \\perp (ABC)$ nên $SA \\perp AM$, suy ra tam giác $SAM$ vuông tại $A$. <br>Áp dụng định lý Pytago: $SM = \\sqrt{SA^2 + AM^2} = \\sqrt{4^2 + 3^2} = \\sqrt{16+9} = \\sqrt{25} = 5$." },
+                { id: "dtmp_p3_8_new", question: "Cho hình lập phương $ABCD.A'B'C'D'$ có cạnh bằng $a$. Biết bình phương độ dài đường chéo của hình lập phương (tức là giá trị $AC'^2$) có dạng $x \\cdot a^2$. Tìm hệ số $x$.", keywords: ["3"], explanation: "Trong hình lập phương, ta áp dụng Pytago 2 lần để tìm đường chéo không gian. <br>Xét mặt đáy hình vuông: $AC^2 = AB^2 + BC^2 = a^2 + a^2 = 2a^2$. <br>Vì cạnh bên $AA'$ vuông góc với mặt đáy nên $\\Delta CAA'$ vuông tại $A$. <br>Bình phương đường chéo không gian: $AC'^2 = AC^2 + AA'^2 = 2a^2 + a^2 = 3a^2$. <br>Hệ số cần tìm là $3$." },
+                { id: "dtmp_p3_9_new", question: "Cho tứ diện $ABCD$ có cạnh $AB$ vuông góc với mặt phẳng $(BCD)$. Biết tam giác $BCD$ vuông tại $C$, $AB=2, BC=3, CD=6$. Tính độ dài cạnh $AD$.", keywords: ["7"], explanation: "Vì $\\Delta BCD$ vuông tại $C$, ta áp dụng Pytago để tính $BD$: $BD = \\sqrt{BC^2 + CD^2} = \\sqrt{3^2 + 6^2} = \\sqrt{9 + 36} = \\sqrt{45}$. <br>Do $AB \\perp (BCD)$ nên $AB \\perp BD$. Suy ra tam giác $ABD$ vuông tại $B$. <br>Áp dụng Pytago cho $\\Delta ABD$: $AD = \\sqrt{AB^2 + BD^2} = \\sqrt{2^2 + (\\sqrt{45})^2} = \\sqrt{4 + 45} = \\sqrt{49} = 7$." },
+                { id: "dtmp_p3_10_new", question: "Cho hình chóp $S.ABCD$ đáy là hình vuông cạnh $4\\sqrt{2}$. Gọi $H, K$ lần lượt là trung điểm của $AB$ và $AD$. Biết $SH \\perp (ABCD)$ và $SH = 3$. Tính độ dài đoạn thẳng $SK$.", keywords: ["5"], explanation: "Đáy là hình vuông nên góc $A$ bằng $90^\\circ$. <br>Trung điểm $H$ của $AB \\Rightarrow AH = \\frac{4\\sqrt{2}}{2} = 2\\sqrt{2}$. Tương tự $AK = 2\\sqrt{2}$. <br>Xét tam giác $AHK$ vuông tại $A$: $HK = \\sqrt{AH^2 + AK^2} = \\sqrt{8+8} = 4$. <br>Theo giả thiết $SH \\perp (ABCD) \\Rightarrow SH \\perp HK$. <br>Trong tam giác vuông $SHK$ vuông tại $H$: $SK = \\sqrt{SH^2 + HK^2} = \\sqrt{3^2+4^2} = 5$." }
+            ]
+        };
+
+        let currentSession = [];
+        let currentIndex = 0;
+        let score = 0;
+        let selectedAnswers = null;
+
+        function shuffle(array) { return array.sort(() => Math.random() - 0.5); }
+
+        function initGame() {
+            // Thuật toán Anti-repetition đảm bảo 0% trùng lặp
+            let playedHistory = JSON.parse(localStorage.getItem('played_history_dtmp_v8') || '[]');
+            const lastRoundIds = JSON.parse(localStorage.getItem('last_round_dtmp_v8') || '[]');
+            
+            let globalRecycledCount = 0;
+
+            const getFresh = (pool, count) => {
+                let available = pool.filter(q => !playedHistory.includes(q.id) && !lastRoundIds.includes(q.id));
+                let selected = [];
+                
+                if (available.length >= count) {
+                    selected = shuffle(available).slice(0, count);
+                } else {
+                    const poolIds = pool.map(p => p.id);
+                    playedHistory = playedHistory.filter(id => !poolIds.includes(id));
+                    available = pool.filter(q => !lastRoundIds.includes(q.id));
+                    
+                    if (available.length >= count) {
+                        selected = shuffle(available).slice(0, count);
+                    } else {
+                        selected = [...available];
+                        let needed = count - available.length;
+                        let maxAllowed = Math.max(0, 2 - globalRecycledCount);
+                        let take = Math.min(needed, maxAllowed);
+                        let recycled = shuffle(pool.filter(q => lastRoundIds.includes(q.id)));
+                        selected = selected.concat(recycled.slice(0, take));
+                        globalRecycledCount += take;
+                    }
+                }
+                
+                playedHistory.push(...selected.map(q => q.id));
+                return selected;
+            };
+
+            const p1 = getFresh(MASTER_POOL.part1, 7);
+            const p2 = getFresh(MASTER_POOL.part2, 5);
+            const p3 = getFresh(MASTER_POOL.part3, 3);
+
+            currentSession = [...p1, ...p2, ...p3];
+            
+            localStorage.setItem('played_history_dtmp_v8', JSON.stringify(playedHistory));
+            localStorage.setItem('last_round_dtmp_v8', JSON.stringify(currentSession.map(q => q.id)));
+
+            currentIndex = 0; 
+            score = 0;
+            
+            const startScreen = document.getElementById('start-screen');
+            if (startScreen) startScreen.classList.add('hidden');
+            
+            document.getElementById('progress-container').classList.remove('hidden');
+            document.getElementById('footer-actions').classList.remove('hidden');
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const container = document.getElementById('main-content');
+            const data = currentSession[currentIndex];
+            const qNum = currentIndex + 1;
+            selectedAnswers = (currentIndex < 7) ? null : (currentIndex < 12 ? {} : "");
+
+            document.getElementById('status').innerText = `CÂU ${qNum} / 15`;
+            document.getElementById('progress-bar').style.width = `${(qNum / 15) * 100}%`;
+            document.getElementById('check-btn').classList.remove('hidden');
+            document.getElementById('next-btn').classList.add('hidden');
+            document.getElementById('result-btn').classList.add('hidden');
+
+            let html = `<div class="fade-in">
+                <div class="mb-10 flex items-center gap-4">
+                    <span class="bg-teal-600 text-white text-xs font-black px-5 py-2.5 rounded-2xl uppercase tracking-widest shadow-lg shadow-teal-200">PHẦN ${qNum <= 7 ? 'I: TRẮC NGHIỆM' : (qNum <= 12 ? 'II: ĐÚNG/SAI' : 'III: TRẢ LỜI NGẮN')}</span>
+                </div>
+                <div class="text-xl md:text-2xl font-bold text-slate-800 mb-12 leading-relaxed math-render" id="q-text">${data.question}</div>`;
+
+            if (currentIndex < 7) { 
+                html += `<div class="grid gap-6">`;
+                data.options.forEach((opt, i) => {
+                    html += `<button onclick="pickMCQ(${i})" id="mcq-${i}" class="choice-btn group p-7 border-2 border-slate-100 rounded-[2rem] text-left hover:border-teal-400 hover:bg-teal-50 transition-all flex items-center gap-8">
+                        <div class="w-14 h-14 rounded-3xl bg-slate-50 flex items-center justify-center font-black text-slate-400 group-hover:text-teal-600 transition-colors text-2xl">${String.fromCharCode(65+i)}</div>
+                        <div class="text-xl font-semibold text-slate-700 math-render">${opt}</div>
+                    </button>`;
+                });
+                html += `</div>`;
+            } else if (currentIndex < 12) { 
+                html += `<div class="space-y-6">`;
+                data.items.forEach((item, i) => {
+                    html += `<div class="item-row flex flex-col md:flex-row md:items-center justify-between p-7 bg-slate-50 rounded-[2.5rem] border border-slate-100 gap-6 shadow-sm">
+                        <div class="flex items-start gap-4">
+                            <span class="font-black text-teal-500 mt-1 text-lg">${['a)', 'b)', 'c)', 'd)'][i]}</span>
+                            <span class="text-xl text-slate-700 font-bold leading-relaxed math-render">${item.text}</span>
+                        </div>
+                        <div class="flex gap-4 min-w-[260px]">
+                            <button onclick="pickTF(${i}, true)" id="tf-${i}-t" class="flex-1 py-5 rounded-[1.5rem] border-2 border-white bg-white font-black text-lg transition active:scale-90 shadow-sm text-slate-400 hover:text-teal-600">ĐÚNG</button>
+                            <button onclick="pickTF(${i}, false)" id="tf-${i}-f" class="flex-1 py-5 rounded-[1.5rem] border-2 border-white bg-white font-black text-lg transition active:scale-90 shadow-sm text-slate-400 hover:text-teal-600">SAI</button>
+                        </div>
+                    </div>`;
+                });
+                html += `</div>`;
+            } else { 
+                html += `<div class="relative max-w-lg mx-auto mt-12">
+                    <input type="text" id="short-ans" class="w-full p-10 border-4 border-slate-100 rounded-[3rem] text-5xl font-black text-center text-teal-600 focus:border-teal-500 outline-none transition shadow-inner" placeholder="Nhập đáp án...">
+                </div>`;
+            }
+
+            html += `<div id="exp-box" class="hidden mt-12 p-10 rounded-[3rem] explanation-box"></div></div>`;
+            container.innerHTML = html;
+            if (container.parentElement) container.parentElement.scrollTop = 0;
+            
+            if (window.MathJax) {
+                MathJax.typesetPromise().then(() => {
+                    document.querySelectorAll('.math-render').forEach(el => el.classList.add('ready'));
+                });
+            }
+        }
+
+        function pickMCQ(idx) {
+            selectedAnswers = idx;
+            document.querySelectorAll('[id^="mcq-"]').forEach(b => {
+                b.classList.replace('border-teal-500', 'border-slate-100');
+                b.classList.remove('bg-teal-50');
+            });
+            document.getElementById(`mcq-${idx}`).classList.replace('border-slate-100', 'border-teal-500');
+            document.getElementById(`mcq-${idx}`).classList.add('bg-teal-50');
+        }
+
+        function pickTF(idx, val) {
+            if (typeof selectedAnswers !== 'object') selectedAnswers = {};
+            selectedAnswers[idx] = val;
+            const btnT = document.getElementById(`tf-${idx}-t`), btnF = document.getElementById(`tf-${idx}-f`);
+            btnT.className = `flex-1 py-5 rounded-[1.5rem] border-2 font-black text-lg transition active:scale-90 ${val === true ? 'bg-teal-600 text-white border-teal-600 shadow-md' : 'bg-white border-white text-slate-400'}`;
+            btnF.className = `flex-1 py-5 rounded-[1.5rem] border-2 font-black text-lg transition active:scale-90 ${val === false ? 'bg-teal-600 text-white border-teal-600 shadow-md' : 'bg-white border-white text-slate-400'}`;
+        }
+
+        function processAnswer() {
+            const data = currentSession[currentIndex];
+            let isCorrect = false;
+
+            if (currentIndex < 7) {
+                if (selectedAnswers === null) return alert("Vui lòng chọn đáp án!");
+                isCorrect = (selectedAnswers === data.correct);
+                if (isCorrect) score += 1;
+                document.getElementById(`mcq-${data.correct}`).classList.add('bg-green-50', 'border-green-500');
+                if(!isCorrect) document.getElementById(`mcq-${selectedAnswers}`).classList.add('bg-red-50', 'border-red-500');
+            } else if (currentIndex < 12) {
+                let correctCount = 0;
+                let isFullAnswered = true;
+                for(let i=0; i<4; i++) { if(selectedAnswers[i] === undefined) isFullAnswered = false; }
+                if(!isFullAnswered) return alert("Vui lòng chọn Đúng/Sai cho tất cả các ý!");
+
+                data.items.forEach((item, i) => { if (selectedAnswers[i] === item.isTrue) correctCount++; });
+                const points = [0, 0.1, 0.25, 0.5, 1];
+                score += points[correctCount];
+                isCorrect = (correctCount === 4);
+            } else {
+                const input = document.getElementById('short-ans').value.trim().toLowerCase().replace(',', '.');
+                if(!input) return alert("Vui lòng nhập đáp án!");
+                isCorrect = data.keywords.some(k => input.includes(k.toLowerCase()));
+                if (isCorrect) score += 1;
+            }
+
+            const exp = document.getElementById('exp-box');
+            exp.innerHTML = `<h4 class="text-teal-800 font-extrabold text-2xl mb-6 uppercase tracking-tighter">${isCorrect ? '✨ CHÍNH XÁC!' : '❌ HÃY KIỂM TRA LẠI LỜI GIẢI'}</h4>
+                             <div class="text-slate-700 font-medium leading-loose math-render text-lg" id="exp-text">${data.explanation}</div>`;
+            exp.classList.remove('hidden');
+            document.getElementById('check-btn').classList.add('hidden');
+
+            if (currentIndex === 14) document.getElementById('result-btn').classList.remove('hidden');
+            else document.getElementById('next-btn').classList.remove('hidden');
+            
+            if (window.MathJax) {
+                MathJax.typesetPromise().then(() => {
+                    const el = document.getElementById('exp-text');
+                    if(el) el.classList.add('ready');
+                });
+            }
+        }
+
+        function renderNext() { currentIndex++; renderQuestion(); }
+
+        function finishGame() {
+            const container = document.getElementById('main-content');
+            document.getElementById('footer-actions').classList.add('hidden');
+            document.getElementById('progress-container').classList.add('hidden');
+            
+            const finalScore = ((score / 15) * 10).toFixed(2);
+            let rank = finalScore >= 8.5 ? "XUẤT SẮC" : (finalScore >= 6.5 ? "KHÁ GIỎI" : "CẦN CỐ GẮNG");
+            
+            container.innerHTML = `<div class="text-center py-20 fade-in">
+                <div class="text-[12rem] mb-12 animate-pulse drop-shadow-2xl">🏆</div>
+                <h2 class="text-6xl font-black text-slate-800 mb-6 uppercase tracking-tighter">${rank}</h2>
+                <div class="text-[10rem] leading-none font-black text-teal-600 my-16 tracking-tighter italic">${finalScore}<span class="text-4xl text-slate-300 ml-6 not-italic">/ 10</span></div>
+                <button onclick="location.reload()" class="bg-teal-600 text-white px-24 py-8 rounded-[3rem] font-black text-3xl shadow-xl hover:bg-teal-700 transition active:scale-95 uppercase tracking-wide">LÀM ĐỀ MỚI</button>
+            </div>`;
+        }
+    </script>
+</body>
+</html>
